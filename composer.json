@@ -15,7 +15,11 @@
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^2.15",
-        "phpunit/phpunit": "^8.3"
+        "phpunit/phpunit": "^8.3",
+        "symfony/http-client": "^4.3"
+    },
+    "provide": {
+        "symfony/http-client-implementation": "1.1"
     },
     "autoload": {
         "psr-4": {
