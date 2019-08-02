@@ -2,6 +2,9 @@
 
 namespace Superbrave\AuthZeroHttpClient;
 
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
+use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 use Symfony\Contracts\HttpClient\ResponseStreamInterface;
@@ -24,15 +27,30 @@ class AuthZeroAuthenticatingHttpClient implements HttpClientInterface
     private $authZeroConfiguration;
 
     /**
+     * @var CacheInterface
+     */
+    private $accessTokenCache;
+
+    /**
      * Constructs a new AuthZeroAuthenticatingHttpClient instance.
      *
      * @param HttpClientInterface   $client
      * @param AuthZeroConfiguration $authZeroConfiguration
+     * @param CacheInterface|null   $accessTokenCache
      */
-    public function __construct(HttpClientInterface $client, AuthZeroConfiguration $authZeroConfiguration)
-    {
+    public function __construct(
+        HttpClientInterface $client,
+        AuthZeroConfiguration $authZeroConfiguration,
+        CacheInterface $accessTokenCache = null
+    ) {
         $this->client = $client;
         $this->authZeroConfiguration = $authZeroConfiguration;
+
+        if ($accessTokenCache === null) {
+            $accessTokenCache = new ArrayAdapter();
+        }
+
+        $this->accessTokenCache = $accessTokenCache;
     }
 
     /**
@@ -42,22 +60,7 @@ class AuthZeroAuthenticatingHttpClient implements HttpClientInterface
      */
     public function request(string $method, string $url, array $options = array()): ResponseInterface
     {
-        $response = $this->client->request(
-            'POST',
-            $this->authZeroConfiguration->getTenantTokenUrl(),
-            array(
-                'json' => $this->authZeroConfiguration->getAuthenticationPayload(),
-            )
-        );
-
-        $responseJson = null;
-        if ($response->getStatusCode() === 200) {
-            $responseJson = $response->toArray();
-        }
-
-        if (isset($responseJson['access_token'])) {
-            $options['auth_bearer'] = $responseJson['access_token'];
-        }
+        $this->appendAuthBearerToRequestOptions($options);
 
         return $this->client->request($method, $url, $options);
     }
@@ -68,5 +71,60 @@ class AuthZeroAuthenticatingHttpClient implements HttpClientInterface
     public function stream($responses, float $timeout = null): ResponseStreamInterface
     {
         return $this->client->stream($responses, $timeout);
+    }
+
+    /**
+     * Appends the 'auth_bearer' option with the retrieved access token from Auth0.
+     *
+     * @param array $options
+     */
+    private function appendAuthBearerToRequestOptions(array &$options): void
+    {
+        if (isset($options['auth_bearer'])) {
+            return;
+        }
+
+        $accessToken = $this->accessTokenCache->get(
+            $this->authZeroConfiguration->getAudience(),
+            function (ItemInterface $item) {
+                $accessToken = $this->requestAccessToken();
+
+                $item->expiresAfter($accessToken->getTtl());
+
+                return $accessToken;
+            }
+        );
+
+        if ($accessToken instanceof AccessToken) {
+            $options['auth_bearer'] = $accessToken->getToken();
+        }
+    }
+
+    /**
+     * Requests an access token at Auth0.
+     *
+     * @return AccessToken|null
+     */
+    private function requestAccessToken(): ?AccessToken
+    {
+        $response = $this->client->request(
+            'POST',
+            $this->authZeroConfiguration->getTenantTokenUrl(),
+            array(
+                'json' => $this->authZeroConfiguration->getAuthenticationPayload(),
+            )
+        );
+
+        $accessToken = null;
+        if ($response->getStatusCode() !== 200) {
+            return null;
+        }
+
+        $responseJson = $response->toArray();
+        if (isset($responseJson['access_token'], $responseJson['expires_in']) === false) {
+            return null;
+        }
+
+        return new AccessToken($responseJson['access_token'], $responseJson['expires_in']);
     }
 }

@@ -47,6 +47,14 @@ class AuthZeroConfiguration
     }
 
     /**
+     * @return string
+     */
+    public function getAudience(): string
+    {
+        return $this->audience;
+    }
+
+    /**
      * Returns the URL to request an Auth0 access token.
      *
      * @return string
