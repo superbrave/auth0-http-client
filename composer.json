@@ -1,0 +1,19 @@
+{
+    "name": "superbrave/auth0-http-client",
+    "description": "Auth0 API client authentication for the Symfony HTTP client.",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Niels Nijens",
+            "email": "nn@superbrave.nl"
+        }
+    ],
+    "require": {
+        "php": "^7.1.3",
+        "symfony/http-client-contracts": "^1.1"
+    },
+    "config": {
+        "sort-packages": true
+    }
+}
