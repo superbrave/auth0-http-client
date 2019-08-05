@@ -9,6 +9,7 @@ use Superbrave\AuthZeroHttpClient\AuthZeroConfiguration;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
 use Symfony\Component\HttpClient\Response\ResponseStream;
+use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
@@ -27,6 +28,11 @@ class AuthZeroAuthenticatingHttpClientTest extends TestCase
     private $authZeroConfiguration;
 
     /**
+     * @var MockHttpClient
+     */
+    private $mockHttpClient;
+
+    /**
      * @var MockResponse[]
      */
     private $mockResponses;
@@ -38,7 +44,7 @@ class AuthZeroAuthenticatingHttpClientTest extends TestCase
     {
         $this->mockResponses = new ArrayIterator();
 
-        $mockHttpClient = new MockHttpClient($this->mockResponses);
+        $this->mockHttpClient = new MockHttpClient($this->mockResponses);
         $this->authZeroConfiguration = new AuthZeroConfiguration(
             'https://dev-1234.auth0.com',
             'clientId',
@@ -46,7 +52,7 @@ class AuthZeroAuthenticatingHttpClientTest extends TestCase
             'https://www.superbrave.nl/api'
         );
 
-        $this->httpClient = new AuthZeroAuthenticatingHttpClient($mockHttpClient, $this->authZeroConfiguration);
+        $this->httpClient = new AuthZeroAuthenticatingHttpClient($this->mockHttpClient, $this->authZeroConfiguration);
     }
 
     /**
@@ -79,6 +85,70 @@ class AuthZeroAuthenticatingHttpClientTest extends TestCase
     }
 
     /**
+     * Tests if the access token is read from the cache on the second request.
+     */
+    public function testRequestReadsAccessTokenFromCache()
+    {
+        $accessToken = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IlFrVXhORVpDT';
+
+        $this->mockResponses[] = new MockResponse(
+            sprintf('{"access_token": "%s", "expires_in": 86400, "token_type": "Bearer"}', $accessToken),
+            array(
+                'http_code' => 200,
+            )
+        );
+        $this->mockResponses[] = new MockResponse('{"message": "Response from actual API."}');
+        $this->mockResponses[] = new MockResponse('{"message": "Another response from actual API."}');
+
+        /** @var MockResponse $response */
+        $response = $this->httpClient->request('GET', 'https://superbrave.nl/api');
+
+        $this->assertSame(
+            array(
+                'authorization' => array(
+                    sprintf('Bearer %s', $accessToken),
+                ),
+            ),
+            $response->getRequestOptions()['headers']
+        );
+        $this->assertSame('{"message": "Response from actual API."}', $response->getContent());
+
+        $response = $this->httpClient->request('GET', 'https://superbrave.nl/api');
+
+        $this->assertSame(
+            array(
+                'authorization' => array(
+                    sprintf('Bearer %s', $accessToken),
+                ),
+            ),
+            $response->getRequestOptions()['headers']
+        );
+        $this->assertSame('{"message": "Another response from actual API."}', $response->getContent());
+    }
+
+    /**
+     * Tests if AuthZeroAuthenticatingClient::request does not replace an existing 'auth_bearer' option and thus
+     * the cache is not called.
+     */
+    public function testRequestDoesNotReplaceExistingAuthBearer()
+    {
+        $cacheMock = $this->getMockBuilder(CacheInterface::class)
+            ->getMock();
+        $cacheMock->expects($this->never())
+            ->method('get');
+
+        $this->mockResponses[] = new MockResponse('{"message": "Response from actual API."}');
+
+        $this->httpClient = new AuthZeroAuthenticatingHttpClient(
+            $this->mockHttpClient,
+            $this->authZeroConfiguration,
+            $cacheMock
+        );
+
+        $this->httpClient->request('GET', 'https://superbrave.nl/api', array('auth_bearer' => 'token'));
+    }
+
+    /**
      * Tests if AuthZeroAuthenticatingClient::request when unsuccessfully authenticating with Auth0
      * still continues the request.
      */
@@ -88,6 +158,29 @@ class AuthZeroAuthenticatingHttpClientTest extends TestCase
             '{"error": "access_denied", "error_description": "Unauthorized"}',
             array(
                 'http_code' => 401,
+            )
+        );
+        $this->mockResponses[] = new MockResponse('{"message": "Response from actual API."}');
+
+        /** @var MockResponse $response */
+        $response = $this->httpClient->request('GET', 'https://superbrave.nl/api');
+
+        $this->assertSame(
+            array(),
+            $response->getRequestOptions()['headers']
+        );
+    }
+
+    /**
+     * Tests if AuthZeroAuthenticatingClient::request still continues the request when Auth0 returns an
+     * unexpected response without access token.
+     */
+    public function testRequestWithAuthZeroAuthenticationUnexpectedResponse()
+    {
+        $this->mockResponses[] = new MockResponse(
+            '{}',
+            array(
+                'http_code' => 200,
             )
         );
         $this->mockResponses[] = new MockResponse('{"message": "Response from actual API."}');
