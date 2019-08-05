@@ -84,8 +84,9 @@ class AuthZeroAuthenticatingHttpClient implements HttpClientInterface
             return;
         }
 
+        $cacheKey = preg_replace('#[\{\}\(\)\/\\\@:]+#', '_', $this->authZeroConfiguration->getAudience());
         $accessToken = $this->accessTokenCache->get(
-            $this->authZeroConfiguration->getAudience(),
+            $cacheKey,
             function (ItemInterface $item) {
                 $accessToken = $this->requestAccessToken();
 
