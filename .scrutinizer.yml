@@ -1,0 +1,49 @@
+filter:
+    excluded_paths:
+        - 'tests/*'
+
+    dependency_paths:
+        - 'vendor/'
+
+checks:
+    php: true
+
+build:
+    dependencies:
+        before:
+            - restore-from-cache repository "dependencies"
+
+        override:
+            - composer install --no-interaction --optimize-autoloader
+            - command: wget https://get.symfony.com/cli/installer -O - | bash
+              only_if: '[ "$SCRUTINIZER_BRANCH" == "master" ] && [ -z "$SCRUTINIZER_PR_SOURCE_BRANCH" ]'
+
+        after:
+            - store-in-cache repository "dependencies" vendor/
+
+    nodes:
+        tests:
+            tests:
+                override:
+                    - composer validate
+
+                    - ./vendor/bin/php-cs-fixer fix --dry-run -v
+
+                    - command: '~/.symfony/bin/symfony security:check --force-update'
+                      only_if: '[ "$SCRUTINIZER_BRANCH" == "master" ] && [ -z "$SCRUTINIZER_PR_SOURCE_BRANCH" ]'
+
+                    - command: './vendor/bin/phpunit --coverage-clover=coverage-clover.xml'
+                      coverage:
+                          file: 'coverage-clover.xml'
+                          format: 'clover'
+
+                    - php-scrutinizer-run
+
+    environment:
+        php:
+            version: '7.2'
+
+build_failure_conditions:
+    - 'elements.rating(<= D).new.exists' # No new classes/methods with a rating of D or worse.
+    - 'project.metric("scrutinizer.quality", < 8)' # Code Quality Rating drops below 8.
+    - 'project.metric("scrutinizer.test_coverage", < 0.80)' # Code Coverage drops below 80%.
