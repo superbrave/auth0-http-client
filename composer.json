@@ -19,6 +19,9 @@
         "phpunit/phpunit": "^8.3",
         "symfony/http-client": "^4.3"
     },
+    "suggest": {
+        "symfony/http-client": "This package requires an actual Symfony HTTP client implementation to decorate."
+    },
     "provide": {
         "symfony/http-client-implementation": "1.1"
     },
