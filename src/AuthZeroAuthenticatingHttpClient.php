@@ -128,7 +128,6 @@ class AuthZeroAuthenticatingHttpClient implements HttpClientInterface
             )
         );
 
-        $accessToken = null;
         if ($response->getStatusCode() !== 200) {
             return null;
         }
