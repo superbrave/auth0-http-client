@@ -14,6 +14,8 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
  * Tests the @see AuthZeroAuthenticatingHttpClient class.
+ *
+ * @author Niels Nijens <nn@superbrave.nl>
  */
 class AuthZeroAuthenticatingHttpClientTest extends TestCase
 {

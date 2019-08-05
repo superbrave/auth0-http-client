@@ -7,6 +7,8 @@ use Superbrave\AuthZeroHttpClient\AuthZeroConfiguration;
 
 /**
  * Tests the @see AuthZeroConfiguration class.
+ *
+ * @author Niels Nijens <nn@superbrave.nl>
  */
 class AuthZeroConfigurationTest extends TestCase
 {

@@ -4,6 +4,8 @@ namespace Superbrave\AuthZeroHttpClient;
 
 /**
  * Contains the access token and expiry time returned by Auth0.
+ *
+ * @author Niels Nijens <nn@superbrave.nl>
  */
 class AccessToken
 {
