@@ -88,17 +88,29 @@ class AuthZeroAuthenticatingHttpClient implements HttpClientInterface
         $accessToken = $this->accessTokenCache->get(
             $cacheKey,
             function (ItemInterface $item) {
-                $accessToken = $this->requestAccessToken();
-
-                $item->expiresAfter($accessToken->getTtl());
-
-                return $accessToken;
+                return $this->getAccessTokenCache($item);
             }
         );
 
         if ($accessToken instanceof AccessToken) {
             $options['auth_bearer'] = $accessToken->getToken();
         }
+    }
+
+    /**
+     * @param ItemInterface $item
+     *
+     * @return AccessToken|null
+     */
+    private function getAccessTokenCache(ItemInterface $item): ?AccessToken
+    {
+        $accessToken = $this->requestAccessToken();
+
+        if ($accessToken !== null) {
+            $item->expiresAfter($accessToken->getTtl());
+        }
+
+        return $accessToken;
     }
 
     /**
