@@ -1,0 +1,41 @@
+{
+    "name": "superbrave/auth0-http-client",
+    "description": "Auth0 API client authentication for the Symfony HTTP client.",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Niels Nijens",
+            "email": "nn@superbrave.nl"
+        }
+    ],
+    "require": {
+        "php": "^7.1.3",
+        "symfony/cache": "^4.2",
+        "symfony/http-client-contracts": "^1.1"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^2.15",
+        "phpunit/phpunit": "^8.3",
+        "symfony/http-client": "^4.3"
+    },
+    "suggest": {
+        "symfony/http-client": "This package requires an actual Symfony HTTP client implementation to decorate."
+    },
+    "provide": {
+        "symfony/http-client-implementation": "1.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Superbrave\\AuthZeroHttpClient\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Superbrave\\AuthZeroHttpClient\\Tests\\": "tests/"
+        }
+    },
+    "config": {
+        "sort-packages": true
+    }
+}
