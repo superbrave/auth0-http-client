@@ -1,7 +1,7 @@
 # Auth0 HTTP client
 
 [![Latest version on Packagist][ico-version]][link-version]
-[![Software License][ico-license]](LICENSE.md)
+[![Software License][ico-license]][link-license]
 [![Build Status][ico-build]][link-build]
 [![Coverage Status][ico-coverage]][link-coverage]
 [![Code Quality][ico-code-quality]][link-code-quality]
@@ -43,15 +43,16 @@ Optionally, a custom cache instance can be injected into the `AuthZeroAuthentica
 the access tokens (JWT) for the configured TTL returned by Auth0.
 
 ## License
-The Auth0 HTTP client is licensed under the MIT License. Please see the [LICENSE file](LICENSE.md) for details.
+The Auth0 HTTP client is licensed under the MIT License. Please see the [LICENSE file][link-license] for details.
 
-[ico-version]: https://img.shields.io/packagist/v/superbrave/auth0-http-client.svg
-[ico-license]: https://img.shields.io/badge/license-MIT-brightgreen.svg
+[ico-version]: https://img.shields.io/packagist/v/superbrave/auth0-http-client
+[ico-license]: https://img.shields.io/packagist/l/superbrave/auth0-http-client
 [ico-build]: https://scrutinizer-ci.com/g/superbrave/auth0-http-client/badges/build.png?b=master
 [ico-coverage]: https://scrutinizer-ci.com/g/superbrave/auth0-http-client/badges/coverage.png?b=master
 [ico-code-quality]: https://scrutinizer-ci.com/g/superbrave/auth0-http-client/badges/quality-score.png?b=master
 
 [link-version]: https://packagist.org/packages/superbrave/auth0-http-client
+[link-license]: LICENSE
 [link-build]: https://scrutinizer-ci.com/g/superbrave/auth0-http-client/build-status/master
 [link-coverage]: https://scrutinizer-ci.com/g/superbrave/auth0-http-client/build-status/master
 [link-code-quality]: https://scrutinizer-ci.com/g/superbrave/auth0-http-client/build-status/master
