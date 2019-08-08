@@ -36,7 +36,7 @@ $authZeroConfiguration = new AuthZeroConfiguration(
 
 $authZeroHttpClient = new AuthZeroAuthenticatingHttpClient($httpClient, $authZeroConfiguration);
 
-$response = $this->httpClient->request('GET', 'https://superbrave.nl/api');
+$response = $authZeroHttpClient->request('GET', 'https://superbrave.nl/api');
 ```
 
 Optionally, a custom cache instance can be injected into the `AuthZeroAuthenticatingHttpClient`. The cache will store
