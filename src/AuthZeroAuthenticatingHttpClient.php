@@ -84,25 +84,40 @@ class AuthZeroAuthenticatingHttpClient implements HttpClientInterface
             return;
         }
 
-        $cacheKey = preg_replace('#[\{\}\(\)\/\\\@:]+#', '_', $this->authZeroConfiguration->getAudience());
-        $accessToken = $this->accessTokenCache->get(
-            $cacheKey,
-            function (ItemInterface $item) {
-                return $this->getAccessTokenCache($item);
-            }
-        );
-
+        $accessToken = $this->getAccessTokenFromCache();
         if ($accessToken instanceof AccessToken) {
             $options['auth_bearer'] = $accessToken->getToken();
         }
     }
 
     /**
+     * Returns an access token from the cache by the configured audience in the AuthZeroConfiguration.
+     *
+     * @return AccessToken|null
+     */
+    private function getAccessTokenFromCache(): ?AccessToken
+    {
+        // Replace invalid cache key characters with an underscore.
+        $cacheKey = preg_replace('#[\{\}\(\)\/\\\@:]+#', '_', $this->authZeroConfiguration->getAudience());
+
+        return $this->accessTokenCache->get(
+            $cacheKey,
+            function (ItemInterface $item) {
+                return $this->getNewAccessTokenForCache($item);
+            }
+        );
+    }
+
+    /**
+     * Requests and returns a new AccessToken.
+     *
+     * This method is called by the access token cache on a cache miss.
+     *
      * @param ItemInterface $item
      *
      * @return AccessToken|null
      */
-    private function getAccessTokenCache(ItemInterface $item): ?AccessToken
+    private function getNewAccessTokenForCache(ItemInterface $item): ?AccessToken
     {
         $accessToken = $this->requestAccessToken();
 
