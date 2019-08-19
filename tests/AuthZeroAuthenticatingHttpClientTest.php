@@ -6,10 +6,10 @@ use ArrayIterator;
 use PHPUnit\Framework\TestCase;
 use Superbrave\AuthZeroHttpClient\AuthZeroAuthenticatingHttpClient;
 use Superbrave\AuthZeroHttpClient\AuthZeroConfiguration;
+use Symfony\Component\Cache\Adapter\AdapterInterface;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
 use Symfony\Component\HttpClient\Response\ResponseStream;
-use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
@@ -134,10 +134,10 @@ class AuthZeroAuthenticatingHttpClientTest extends TestCase
      */
     public function testRequestDoesNotReplaceExistingAuthBearer()
     {
-        $cacheMock = $this->getMockBuilder(CacheInterface::class)
+        $cacheMock = $this->getMockBuilder(AdapterInterface::class)
             ->getMock();
         $cacheMock->expects($this->never())
-            ->method('get');
+            ->method('getItem');
 
         $this->mockResponses[] = new MockResponse('{"message": "Response from actual API."}');
 
