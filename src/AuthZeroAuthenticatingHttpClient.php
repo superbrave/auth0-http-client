@@ -2,9 +2,9 @@
 
 namespace Superbrave\AuthZeroHttpClient;
 
+use Symfony\Component\Cache\Adapter\AdapterInterface;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
-use Symfony\Contracts\Cache\CacheInterface;
-use Symfony\Contracts\Cache\ItemInterface;
+use Symfony\Component\Cache\CacheItem;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 use Symfony\Contracts\HttpClient\ResponseStreamInterface;
@@ -27,7 +27,7 @@ class AuthZeroAuthenticatingHttpClient implements HttpClientInterface
     private $authZeroConfiguration;
 
     /**
-     * @var CacheInterface
+     * @var AdapterInterface
      */
     private $accessTokenCache;
 
@@ -36,12 +36,12 @@ class AuthZeroAuthenticatingHttpClient implements HttpClientInterface
      *
      * @param HttpClientInterface   $client
      * @param AuthZeroConfiguration $authZeroConfiguration
-     * @param CacheInterface|null   $accessTokenCache
+     * @param AdapterInterface|null $accessTokenCache
      */
     public function __construct(
         HttpClientInterface $client,
         AuthZeroConfiguration $authZeroConfiguration,
-        CacheInterface $accessTokenCache = null
+        AdapterInterface $accessTokenCache = null
     ) {
         $this->client = $client;
         $this->authZeroConfiguration = $authZeroConfiguration;
@@ -85,7 +85,7 @@ class AuthZeroAuthenticatingHttpClient implements HttpClientInterface
         }
 
         $accessToken = $this->getAccessTokenFromCache();
-        if ($accessToken instanceof AccessToken) {
+        if ($accessToken !== null) {
             $options['auth_bearer'] = $accessToken->getToken();
         }
     }
@@ -100,28 +100,32 @@ class AuthZeroAuthenticatingHttpClient implements HttpClientInterface
         // Replace invalid cache key characters with an underscore.
         $cacheKey = preg_replace('#[\{\}\(\)\/\\\@:]+#', '_', $this->authZeroConfiguration->getAudience());
 
-        return $this->accessTokenCache->get(
-            $cacheKey,
-            function (ItemInterface $item) {
-                return $this->getNewAccessTokenForCache($item);
-            }
-        );
+        $accessToken = $this->accessTokenCache->getItem($cacheKey);
+        if ($accessToken->isHit()) {
+            return $accessToken->get();
+        }
+
+        $newAccessToken = $this->getNewAccessTokenForCache($accessToken);
+
+        $this->accessTokenCache->save($accessToken);
+
+        return $newAccessToken;
     }
 
     /**
      * Requests and returns a new AccessToken.
-     *
      * This method is called by the access token cache on a cache miss.
      *
-     * @param ItemInterface $item
+     * @param CacheItem $item
      *
      * @return AccessToken|null
      */
-    private function getNewAccessTokenForCache(ItemInterface $item): ?AccessToken
+    private function getNewAccessTokenForCache(CacheItem $item): ?AccessToken
     {
         $accessToken = $this->requestAccessToken();
 
         if ($accessToken !== null) {
+            $item->set($accessToken);
             $item->expiresAfter($accessToken->getTtl());
         }
 
