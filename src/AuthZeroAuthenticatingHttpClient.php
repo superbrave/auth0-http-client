@@ -85,7 +85,7 @@ class AuthZeroAuthenticatingHttpClient implements HttpClientInterface
         }
 
         $accessToken = $this->getAccessTokenFromCache();
-        if ($accessToken instanceof AccessToken) {
+        if ($accessToken !== null) {
             $options['auth_bearer'] = $accessToken->getToken();
         }
     }
@@ -105,7 +105,11 @@ class AuthZeroAuthenticatingHttpClient implements HttpClientInterface
             return $accessToken->get();
         }
 
-        return $this->getNewAccessTokenForCache($accessToken);
+        $newAccessToken = $this->getNewAccessTokenForCache($accessToken);
+
+        $this->accessTokenCache->save($accessToken);
+
+        return $newAccessToken;
     }
 
     /**
@@ -121,6 +125,7 @@ class AuthZeroAuthenticatingHttpClient implements HttpClientInterface
         $accessToken = $this->requestAccessToken();
 
         if ($accessToken !== null) {
+            $item->set($accessToken);
             $item->expiresAfter($accessToken->getTtl());
         }
 
