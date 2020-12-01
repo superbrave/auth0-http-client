@@ -21,7 +21,8 @@
         "symfony/http-client": "^4.3"
     },
     "suggest": {
-        "symfony/http-client": "This package requires an actual Symfony HTTP client implementation to decorate."
+        "symfony/http-client": "This package requires an actual Symfony HTTP client implementation to decorate.",
+        "symfony/cache": "This package provide an actual Symfony cache implementation to cache access tokens."
     },
     "provide": {
         "symfony/http-client-implementation": "1.1",
