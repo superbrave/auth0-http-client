@@ -77,12 +77,13 @@ class AuthZeroAuthenticatingHttpClientTest extends TestCase
         $response = $this->httpClient->request('GET', 'https://superbrave.nl/api');
 
         $this->assertSame(
-            array(
-                'authorization' => array(
-                    sprintf('Bearer %s', $accessToken),
-                ),
-            ),
-            $response->getRequestOptions()['headers']
+            [
+                'accept' => ['Accept: */*'],
+                'authorization' => [
+                    sprintf('Authorization: Bearer %s', $accessToken),
+                ],
+            ],
+            $response->getRequestOptions()['normalized_headers']
         );
     }
 
@@ -106,24 +107,26 @@ class AuthZeroAuthenticatingHttpClientTest extends TestCase
         $response = $this->httpClient->request('GET', 'https://superbrave.nl/api');
 
         $this->assertSame(
-            array(
-                'authorization' => array(
-                    sprintf('Bearer %s', $accessToken),
-                ),
-            ),
-            $response->getRequestOptions()['headers']
+            [
+                'accept' => ['Accept: */*'],
+                'authorization' => [
+                    sprintf('Authorization: Bearer %s', $accessToken),
+                ],
+            ],
+            $response->getRequestOptions()['normalized_headers']
         );
         $this->assertSame('{"message": "Response from actual API."}', $response->getContent());
 
         $response = $this->httpClient->request('GET', 'https://superbrave.nl/api');
 
         $this->assertSame(
-            array(
-                'authorization' => array(
-                    sprintf('Bearer %s', $accessToken),
-                ),
-            ),
-            $response->getRequestOptions()['headers']
+            [
+                'accept' => ['Accept: */*'],
+                'authorization' => [
+                    sprintf('Authorization: Bearer %s', $accessToken),
+                ],
+            ],
+            $response->getRequestOptions()['normalized_headers']
         );
         $this->assertSame('{"message": "Another response from actual API."}', $response->getContent());
     }
@@ -168,8 +171,10 @@ class AuthZeroAuthenticatingHttpClientTest extends TestCase
         $response = $this->httpClient->request('GET', 'https://superbrave.nl/api');
 
         $this->assertSame(
-            array(),
-            $response->getRequestOptions()['headers']
+            [
+                'accept' => ['Accept: */*'],
+            ],
+            $response->getRequestOptions()['normalized_headers']
         );
     }
 
@@ -191,8 +196,10 @@ class AuthZeroAuthenticatingHttpClientTest extends TestCase
         $response = $this->httpClient->request('GET', 'https://superbrave.nl/api');
 
         $this->assertSame(
-            array(),
-            $response->getRequestOptions()['headers']
+            [
+                'accept' => ['Accept: */*'],
+            ],
+            $response->getRequestOptions()['normalized_headers']
         );
     }
 
