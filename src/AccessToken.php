@@ -21,9 +21,6 @@ class AccessToken
 
     /**
      * Constructs a new AccessToken instance.
-     *
-     * @param string $token
-     * @param int    $ttl
      */
     public function __construct(string $token, int $ttl)
     {
@@ -31,17 +28,11 @@ class AccessToken
         $this->ttl = $ttl;
     }
 
-    /**
-     * @return string
-     */
     public function getToken(): string
     {
         return $this->token;
     }
 
-    /**
-     * @return int
-     */
     public function getTtl(): int
     {
         return $this->ttl;

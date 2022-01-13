@@ -47,12 +47,12 @@ class AuthZeroConfigurationTest extends TestCase
     public function testGetAuthenticationPayload()
     {
         $this->assertSame(
-            array(
+            [
                 'client_id' => 'clientId',
                 'client_secret' => 'clientSecret',
                 'audience' => 'https://www.superbrave.nl/api',
                 'grant_type' => 'client_credentials',
-            ),
+            ],
             $this->configuration->getAuthenticationPayload()
         );
     }

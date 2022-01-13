@@ -33,10 +33,6 @@ class AuthZeroAuthenticatingHttpClient implements HttpClientInterface
 
     /**
      * Constructs a new AuthZeroAuthenticatingHttpClient instance.
-     *
-     * @param HttpClientInterface   $client
-     * @param AuthZeroConfiguration $authZeroConfiguration
-     * @param CacheInterface|null   $accessTokenCache
      */
     public function __construct(
         HttpClientInterface $client,
@@ -58,7 +54,7 @@ class AuthZeroAuthenticatingHttpClient implements HttpClientInterface
      *
      * {@inheritdoc}
      */
-    public function request(string $method, string $url, array $options = array()): ResponseInterface
+    public function request(string $method, string $url, array $options = []): ResponseInterface
     {
         $this->appendAuthBearerToRequestOptions($options);
 
@@ -75,8 +71,6 @@ class AuthZeroAuthenticatingHttpClient implements HttpClientInterface
 
     /**
      * Appends the 'auth_bearer' option with the retrieved access token from Auth0.
-     *
-     * @param array $options
      */
     private function appendAuthBearerToRequestOptions(array &$options): void
     {
@@ -92,8 +86,6 @@ class AuthZeroAuthenticatingHttpClient implements HttpClientInterface
 
     /**
      * Returns an access token from the cache by the configured audience in the AuthZeroConfiguration.
-     *
-     * @return AccessToken|null
      */
     private function getAccessTokenFromCache(): ?AccessToken
     {
@@ -112,10 +104,6 @@ class AuthZeroAuthenticatingHttpClient implements HttpClientInterface
      * Requests and returns a new AccessToken.
      *
      * This method is called by the access token cache on a cache miss.
-     *
-     * @param ItemInterface $item
-     *
-     * @return AccessToken|null
      */
     private function getNewAccessTokenForCache(ItemInterface $item): ?AccessToken
     {
@@ -130,17 +118,15 @@ class AuthZeroAuthenticatingHttpClient implements HttpClientInterface
 
     /**
      * Requests an access token at Auth0.
-     *
-     * @return AccessToken|null
      */
     private function requestAccessToken(): ?AccessToken
     {
         $response = $this->client->request(
             'POST',
             $this->authZeroConfiguration->getTenantTokenUrl(),
-            array(
+            [
                 'json' => $this->authZeroConfiguration->getAuthenticationPayload(),
-            )
+            ]
         );
 
         if ($response->getStatusCode() !== 200) {
