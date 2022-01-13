@@ -46,9 +46,6 @@ class AuthZeroConfiguration
         $this->audience = $audience;
     }
 
-    /**
-     * @return string
-     */
     public function getAudience(): string
     {
         return $this->audience;
@@ -56,8 +53,6 @@ class AuthZeroConfiguration
 
     /**
      * Returns the URL to request an Auth0 access token.
-     *
-     * @return string
      */
     public function getTenantTokenUrl(): string
     {
@@ -66,16 +61,14 @@ class AuthZeroConfiguration
 
     /**
      * Returns the payload required to request an Auth0 access token.
-     *
-     * @return array
      */
     public function getAuthenticationPayload(): array
     {
-        return array(
+        return [
             'client_id' => $this->clientId,
             'client_secret' => $this->clientSecret,
             'audience' => $this->audience,
             'grant_type' => 'client_credentials',
-        );
+        ];
     }
 }

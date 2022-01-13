@@ -67,9 +67,9 @@ class AuthZeroAuthenticatingHttpClientTest extends TestCase
 
         $this->mockResponses[] = new MockResponse(
             sprintf('{"access_token": "%s", "expires_in": 86400, "token_type": "Bearer"}', $accessToken),
-            array(
+            [
                 'http_code' => 200,
-            )
+            ]
         );
         $this->mockResponses[] = new MockResponse('{"message": "Response from actual API."}');
 
@@ -96,9 +96,9 @@ class AuthZeroAuthenticatingHttpClientTest extends TestCase
 
         $this->mockResponses[] = new MockResponse(
             sprintf('{"access_token": "%s", "expires_in": 86400, "token_type": "Bearer"}', $accessToken),
-            array(
+            [
                 'http_code' => 200,
-            )
+            ]
         );
         $this->mockResponses[] = new MockResponse('{"message": "Response from actual API."}');
         $this->mockResponses[] = new MockResponse('{"message": "Another response from actual API."}');
@@ -150,7 +150,7 @@ class AuthZeroAuthenticatingHttpClientTest extends TestCase
             $cacheMock
         );
 
-        $this->httpClient->request('GET', 'https://superbrave.nl/api', array('auth_bearer' => 'token'));
+        $this->httpClient->request('GET', 'https://superbrave.nl/api', ['auth_bearer' => 'token']);
     }
 
     /**
@@ -161,9 +161,9 @@ class AuthZeroAuthenticatingHttpClientTest extends TestCase
     {
         $this->mockResponses[] = new MockResponse(
             '{"error": "access_denied", "error_description": "Unauthorized"}',
-            array(
+            [
                 'http_code' => 401,
-            )
+            ]
         );
         $this->mockResponses[] = new MockResponse('{"message": "Response from actual API."}');
 
@@ -186,9 +186,9 @@ class AuthZeroAuthenticatingHttpClientTest extends TestCase
     {
         $this->mockResponses[] = new MockResponse(
             '{}',
-            array(
+            [
                 'http_code' => 200,
-            )
+            ]
         );
         $this->mockResponses[] = new MockResponse('{"message": "Response from actual API."}');
 
@@ -210,7 +210,7 @@ class AuthZeroAuthenticatingHttpClientTest extends TestCase
     public function testStream()
     {
         $mockResponse = new MockResponse('');
-        $expectedResponseStream = new ResponseStream(MockResponse::stream(array($mockResponse), null));
+        $expectedResponseStream = new ResponseStream(MockResponse::stream([$mockResponse], null));
 
         $httpClientMock = $this->getMockBuilder(HttpClientInterface::class)
             ->getMock();
