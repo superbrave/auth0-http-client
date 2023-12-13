@@ -8,28 +8,8 @@ namespace Superbrave\AuthZeroHttpClient;
  *
  * @author Niels Nijens <nn@superbrave.nl>
  */
-class AuthZeroConfiguration
+readonly class AuthZeroConfiguration
 {
-    /**
-     * @var string
-     */
-    private $tenantUri;
-
-    /**
-     * @var string
-     */
-    private $clientId;
-
-    /**
-     * @var string
-     */
-    private $clientSecret;
-
-    /**
-     * @var string
-     */
-    private $audience;
-
     /**
      * Constructs a new AuthZeroConfiguration instance.
      *
@@ -38,12 +18,12 @@ class AuthZeroConfiguration
      * @param string $clientSecret Your application's Client Secret
      * @param string $audience     The unique identifier of the target API you want to access
      */
-    public function __construct(string $tenantUri, string $clientId, string $clientSecret, string $audience)
-    {
-        $this->tenantUri = $tenantUri;
-        $this->clientId = $clientId;
-        $this->clientSecret = $clientSecret;
-        $this->audience = $audience;
+    public function __construct(
+        private string $tenantUri, 
+        private string $clientId, 
+        private string $clientSecret, 
+        private string $audience
+    ) {
     }
 
     public function getAudience(): string

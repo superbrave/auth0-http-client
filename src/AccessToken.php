@@ -7,25 +7,10 @@ namespace Superbrave\AuthZeroHttpClient;
  *
  * @author Niels Nijens <nn@superbrave.nl>
  */
-class AccessToken
+readonly class AccessToken
 {
-    /**
-     * @var string
-     */
-    private $token;
-
-    /**
-     * @var int
-     */
-    private $ttl;
-
-    /**
-     * Constructs a new AccessToken instance.
-     */
-    public function __construct(string $token, int $ttl)
+    public function __construct(private string $token, private int $ttl)
     {
-        $this->token = $token;
-        $this->ttl = $ttl;
     }
 
     public function getToken(): string
