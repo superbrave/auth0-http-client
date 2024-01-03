@@ -19,7 +19,7 @@ class AuthZeroAuthenticatingHttpClient implements HttpClientInterface
     use DecoratorTrait;
 
     public function __construct(
-        private HttpClientInterface $client,
+        private readonly HttpClientInterface $client,
         private readonly AuthZeroConfiguration $authZeroConfiguration,
         private ArrayAdapter|CacheInterface|null $accessTokenCache = null,
     ) {
@@ -62,6 +62,10 @@ class AuthZeroAuthenticatingHttpClient implements HttpClientInterface
     {
         // Replace invalid cache key characters with an underscore.
         $cacheKey = preg_replace('#[\{\}\(\)\/\\\@:]+#', '_', $this->authZeroConfiguration->getAudience());
+
+        if (!$this->accessTokenCache instanceof CacheInterface) {
+            return null;
+        }
 
         return $this->accessTokenCache->get(
             $cacheKey,
