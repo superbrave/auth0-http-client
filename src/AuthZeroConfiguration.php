@@ -19,9 +19,9 @@ readonly class AuthZeroConfiguration
      * @param string $audience     The unique identifier of the target API you want to access
      */
     public function __construct(
-        private string $tenantUri, 
-        private string $clientId, 
-        private string $clientSecret, 
+        private string $tenantUri,
+        private string $clientId,
+        private string $clientSecret,
         private string $audience
     ) {
     }
