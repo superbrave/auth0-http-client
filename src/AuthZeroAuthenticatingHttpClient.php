@@ -19,13 +19,15 @@ class AuthZeroAuthenticatingHttpClient implements HttpClientInterface
     use DecoratorTrait;
 
     public function __construct(
-        private readonly HttpClientInterface $client,
+        HttpClientInterface $client,
         private readonly AuthZeroConfiguration $authZeroConfiguration,
         private ArrayAdapter|CacheInterface|null $accessTokenCache = null,
     ) {
         if ($this->accessTokenCache === null) {
             $this->accessTokenCache = new ArrayAdapter();
         }
+
+        $this->client = $client;
     }
 
     /**
