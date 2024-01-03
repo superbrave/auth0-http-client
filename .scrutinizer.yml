@@ -32,7 +32,7 @@ build:
                     - command: '~/.symfony/bin/symfony security:check --force-update'
                       only_if: '[ "$SCRUTINIZER_BRANCH" == "master" ] && [ -z "$SCRUTINIZER_PR_SOURCE_BRANCH" ]'
 
-                    - command: './vendor/bin/phpunit --coverage-clover=coverage-clover.xml'
+                    - command: 'XDEBUG_MODE=coverage ./vendor/bin/phpunit --coverage-clover=coverage-clover.xml --coverage-text'
                       coverage:
                           file: 'coverage-clover.xml'
                           format: 'clover'
@@ -41,7 +41,7 @@ build:
 
     environment:
         php:
-            version: '7.4'
+            version: '8.2'
 
 build_failure_conditions:
     - 'elements.rating(<= D).new.exists' # No new classes/methods with a rating of D or worse.

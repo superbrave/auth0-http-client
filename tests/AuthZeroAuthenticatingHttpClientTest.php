@@ -2,7 +2,6 @@
 
 namespace Superbrave\AuthZeroHttpClient\Tests;
 
-use ArrayIterator;
 use PHPUnit\Framework\TestCase;
 use Superbrave\AuthZeroHttpClient\AuthZeroAuthenticatingHttpClient;
 use Superbrave\AuthZeroHttpClient\AuthZeroConfiguration;
@@ -44,7 +43,7 @@ class AuthZeroAuthenticatingHttpClientTest extends TestCase
      */
     protected function setUp(): void
     {
-        $this->mockResponses = new ArrayIterator();
+        $this->mockResponses = new \ArrayIterator();
 
         $this->mockHttpClient = new MockHttpClient($this->mockResponses);
         $this->authZeroConfiguration = new AuthZeroConfiguration(

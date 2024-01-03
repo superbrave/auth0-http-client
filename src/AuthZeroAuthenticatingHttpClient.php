@@ -3,11 +3,11 @@
 namespace Superbrave\AuthZeroHttpClient;
 
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
+use Symfony\Component\HttpClient\DecoratorTrait;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
-use Symfony\Contracts\HttpClient\ResponseStreamInterface;
 
 /**
  * Handles authentication with Auth0 before actual requests are made.
@@ -16,37 +16,18 @@ use Symfony\Contracts\HttpClient\ResponseStreamInterface;
  */
 class AuthZeroAuthenticatingHttpClient implements HttpClientInterface
 {
-    /**
-     * @var HttpClientInterface
-     */
-    private $client;
+    use DecoratorTrait;
 
-    /**
-     * @var AuthZeroConfiguration
-     */
-    private $authZeroConfiguration;
-
-    /**
-     * @var CacheInterface
-     */
-    private $accessTokenCache;
-
-    /**
-     * Constructs a new AuthZeroAuthenticatingHttpClient instance.
-     */
     public function __construct(
         HttpClientInterface $client,
-        AuthZeroConfiguration $authZeroConfiguration,
-        CacheInterface $accessTokenCache = null
+        private readonly AuthZeroConfiguration $authZeroConfiguration,
+        private ArrayAdapter|CacheInterface|null $accessTokenCache = null,
     ) {
-        $this->client = $client;
-        $this->authZeroConfiguration = $authZeroConfiguration;
-
-        if ($accessTokenCache === null) {
-            $accessTokenCache = new ArrayAdapter();
+        if ($this->accessTokenCache === null) {
+            $this->accessTokenCache = new ArrayAdapter();
         }
 
-        $this->accessTokenCache = $accessTokenCache;
+        $this->client = $client;
     }
 
     /**
@@ -59,14 +40,6 @@ class AuthZeroAuthenticatingHttpClient implements HttpClientInterface
         $this->appendAuthBearerToRequestOptions($options);
 
         return $this->client->request($method, $url, $options);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function stream($responses, float $timeout = null): ResponseStreamInterface
-    {
-        return $this->client->stream($responses, $timeout);
     }
 
     /**
@@ -91,6 +64,10 @@ class AuthZeroAuthenticatingHttpClient implements HttpClientInterface
     {
         // Replace invalid cache key characters with an underscore.
         $cacheKey = preg_replace('#[\{\}\(\)\/\\\@:]+#', '_', $this->authZeroConfiguration->getAudience());
+
+        if (!$this->accessTokenCache instanceof CacheInterface) {
+            return null;
+        }
 
         return $this->accessTokenCache->get(
             $cacheKey,
