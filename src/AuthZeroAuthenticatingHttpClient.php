@@ -90,7 +90,7 @@ class AuthZeroAuthenticatingHttpClient implements HttpClientInterface
     private function getAccessTokenFromCache(): ?AccessToken
     {
         // Replace invalid cache key characters with an underscore.
-        $cacheKey = preg_replace('#[\{\}\(\)\/\\\@:]+#', '_', $this->authZeroConfiguration->getAudience());
+        $cacheKey = preg_replace('#[\.\{\}\(\)\/\\\@:]+#', '_', $this->authZeroConfiguration->getAudience());
 
         return $this->accessTokenCache->get(
             $cacheKey,
