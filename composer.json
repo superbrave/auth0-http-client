@@ -11,13 +11,13 @@
     ],
     "require": {
         "php": "^8.2",
-        "symfony/cache": "^6.4",
+        "symfony/cache": "^6.4|^7.0",
         "symfony/http-client-contracts": "^3.4"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.45",
         "phpunit/phpunit": "^10.0",
-        "symfony/http-client": "^6.4"
+        "symfony/http-client": "^6.4|^7.0"
     },
     "suggest": {
         "symfony/http-client": "This package requires an actual Symfony HTTP client implementation to decorate."
